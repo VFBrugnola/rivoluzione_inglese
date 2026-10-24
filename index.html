@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!doctype html>
 <html lang="it">
 <head>
@@ -7,6 +6,7 @@
 <title>Rivoluzioni Inglesi</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/opendyslexic@0.0.3/dist/opendyslexic/opendyslexic.min.css">
 
 <style>
 /* ── Design tokens ──────────────────────────────────────── */
@@ -298,6 +298,36 @@ h2 {
   h2 { font-size: 1.5rem; }
   .rev-band-title { font-size: 1.2rem; }
 }
+
+/* ── Alta leggibilità ── */
+.legg-btn {
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 6px; color: #fff; cursor: pointer;
+  font-size: .78rem; font-family: Inter, sans-serif;
+  padding: 5px 10px; line-height: 1.2; transition: background .15s;
+  white-space: nowrap;
+}
+.legg-btn:hover { background: rgba(255,255,255,.22); }
+.legg-btn.active { background: rgba(252,211,77,.18); border-color: var(--gold); color: var(--gold); }
+:root.alta-legg body, :root.alta-legg .card-body, :root.alta-legg .fig-role,
+:root.alta-legg .cause-item, :root.alta-legg .phase-text,
+:root.alta-legg p, :root.alta-legg li, :root.alta-legg span {
+  font-family: 'OpenDyslexic', Arial, sans-serif !important;
+  line-height: 1.9 !important; letter-spacing: .05em !important; word-spacing: .15em !important;
+}
+:root.alta-legg .card-body { font-size: 1.05rem !important; }
+:root.alta-legg .fig-role, :root.alta-legg .cause-item em { font-size: .92rem !important; }
+
+/* ── Sintesi vocale ── */
+.tts-btn {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: none; border: 1px solid rgba(255,255,255,.15);
+  border-radius: 5px; color: rgba(255,255,255,.45);
+  cursor: pointer; font-size: .72rem; padding: 3px 7px;
+  margin-bottom: .6rem; transition: all .15s;
+}
+.tts-btn:hover { border-color: rgba(255,255,255,.4); color: #fff; }
+.tts-btn.speaking { border-color: var(--gold); color: var(--gold); }
 </style>
 
 <!-- HEADER -->
@@ -307,7 +337,7 @@ h2 {
       <div class="header-title">Rivoluzioni Inglesi</div>
       <div class="header-subtitle">XVII Secolo · Dashboard didattica</div>
     </div>
-
+    <button class="legg-btn" id="leggBtn" aria-pressed="false">&#9707; Alta leggibilità</button>
   </div>
   <nav class="tab-nav" role="tablist">
     <button class="tab-btn tov active" data-panel="panoramica" role="tab">Panoramica</button>
@@ -908,7 +938,58 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 });
+
+/* ── Alta leggibilità ── */
+const leggBtn = document.getElementById('leggBtn');
+leggBtn.addEventListener('click', () => {
+  const on = document.documentElement.classList.toggle('alta-legg');
+  leggBtn.classList.toggle('active', on);
+  leggBtn.setAttribute('aria-pressed', on);
+});
+
+/* ── Sintesi vocale ── */
+const synth = window.speechSynthesis;
+let currentUtter = null;
+
+function getItalianVoice() {
+  const voices = synth.getVoices();
+  return voices.find(v => v.lang.startsWith('it')) || voices[0] || null;
+}
+
+function speakText(text, btn) {
+  if (currentUtter) synth.cancel();
+  if (btn.classList.contains('speaking')) {
+    btn.classList.remove('speaking'); btn.textContent = '▶ Ascolta';
+    currentUtter = null; return;
+  }
+  document.querySelectorAll('.tts-btn.speaking').forEach(b => {
+    b.classList.remove('speaking'); b.textContent = '▶ Ascolta';
+  });
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'it-IT'; utter.rate = 0.92;
+  const voice = getItalianVoice();
+  if (voice) utter.voice = voice;
+  utter.onend = () => { btn.classList.remove('speaking'); btn.textContent = '▶ Ascolta'; currentUtter = null; };
+  currentUtter = utter;
+  btn.classList.add('speaking'); btn.textContent = '⏹ Stop';
+  synth.speak(utter);
+}
+
+function addTtsBtn(card) {
+  const label = card.querySelector('.sec-label');
+  if (!label || card.querySelector('.tts-btn')) return;
+  const btn = document.createElement('button');
+  btn.className = 'tts-btn';
+  btn.textContent = '▶ Ascolta';
+  const text = card.innerText.replace(/[▶⏹] Ascolta|Stop/g,'').trim();
+  btn.addEventListener('click', () => speakText(text, btn));
+  label.after(btn);
+}
+
+if (synth) {
+  const attach = () => document.querySelectorAll('.card').forEach(addTtsBtn);
+  if (synth.getVoices().length) attach();
+  else synth.addEventListener('voiceschanged', attach, { once: true });
+}
 </script>
 </html>
-
-</body></html>
