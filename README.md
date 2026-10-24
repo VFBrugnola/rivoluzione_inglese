@@ -9,17 +9,23 @@ Dashboard interattiva per il liceo sulla storia delle rivoluzioni inglesi del XV
 - **1688 · Gloriosa** — cause, figure principali (Whig, Tory), fasi, Bill of Rights
 - **Confronto** — tavola sinottica tra le due rivoluzioni
 
-## Caratteristiche
+## Funzionalità di accessibilità
+
+- **Alta leggibilità** — attiva il font OpenDyslexic con interlinea, spaziatura tra lettere e tra parole aumentate, pensato per studenti con DSA
+- **Sintesi vocale** — ogni card dispone di un pulsante "▶ Ascolta" che legge il contenuto ad alta voce in italiano (Web Speech API, nessuna dipendenza esterna)
+
+## Caratteristiche tecniche
 
 - Interfaccia dark mode
-- Immagini e ritratti embedded (nessuna dipendenza esterna)
-- Completamente offline — file HTML singolo, nessun server richiesto
+- Immagini e ritratti embedded come base64 (nessuna dipendenza esterna per i media)
+- File HTML singolo — funziona offline, nessun server richiesto
 - Ottimizzata per la visualizzazione in classe
 
 ## Uso
 
-Aprire `index.html` in un browser moderno, oppure visitare la versione online su GitHub Pages.
+Aprire `index.html` in un browser moderno, oppure visitare la versione online:  
+👉 **https://VFBrugnola.github.io/rivoluzione_inglese/**
 
 ## Licenza
 
-Vedi `LICENSE`.
+[CC BY-NC 4.0](LICENSE) — libero utilizzo e condivisione con attribuzione, non commerciale.
